@@ -9,7 +9,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import pro.learnup.api.dto.UserDto;
+import pro.learnup.api.endpoints.ApiAuthRegisterEndpoint;
+import pro.learnup.api.endpoints.ApiUserEndpoint;
 import pro.learnup.api.ext.ApiTestExtension;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static io.restassured.RestAssured.given;
 
@@ -20,45 +24,18 @@ public class ApiUserTest {
     String token;
     String userName;
     String id;
+    UserDto userDto;
 
     @BeforeEach
     void setUp() {
-        userName = new Faker().name().fullName();
-
-        token = given()
-                .body("{\n" +
-                        "  \"address\": \"russia\",\n" +
-                        "  \"email\": \"sdgrdsg@vas.ru\",\n" +
-                        "  \"password\": \"vasya2\",\n" +
-                        "  \"phone\": \"8999999999\",\n" +
-                        "  \"username\": \"" + userName + "\"\n" +
-                        "}")
-                .post("/api/auth/register")
-                .then()
-                .statusCode(201)
-                .body("address", Matchers.equalTo("russia"))
-                .body("email", Matchers.equalTo("sdgrdsg@vas.ru"))
-                .body("phone", Matchers.equalTo("8999999999"))
-                .body("username", Matchers.equalTo(userName))
-                .extract()
-                .jsonPath()
-                .getString("token");
+        userDto = new ApiAuthRegisterEndpoint().registerNewUser(ApiAuthTest.successfulCreateUserRequests().findFirst().orElseThrow());
     }
     @Test
     @DisplayName("/api/user: 200: получение информации о юзере авторизованным пользователем")
     void successfulGetUserTest() {
-       id = given()
-                .header(new Header("Authorization", "Bearer " + token))
-                .get("/api/user")
-                .then()
-                .statusCode(200)
-                .body("address", Matchers.equalTo("russia"))
-                .body("email", Matchers.equalTo("sdgrdsg@vas.ru"))
-                .body("phone", Matchers.equalTo("8999999999"))
-                .body("username", Matchers.equalTo(userName))
-               .extract()
-               .jsonPath()
-               .getString("id");
+        assertThat(new ApiUserEndpoint().getUser(userDto))
+                .usingRecursiveComparison()
+                .isEqualTo(userDto);
     }
 
     @Test
