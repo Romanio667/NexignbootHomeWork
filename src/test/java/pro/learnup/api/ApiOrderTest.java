@@ -1,6 +1,7 @@
 package pro.learnup.api;
 
 import io.qameta.allure.junit5.AllureJunit5;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import pro.learnup.api.endpoints.ApiCatalogEndpoint;
 import pro.learnup.api.endpoints.ApiOrderEndpoint;
 import pro.learnup.api.endpoints.ApiUserEndpoint;
 import pro.learnup.api.ext.ApiTestExtension;
+import pro.learnup.testdata.DbTestDataHelper;
 
 import java.time.LocalDateTime;
 
@@ -48,5 +50,9 @@ public class ApiOrderTest {
         assertThat(new ApiUserEndpoint().getUser(userDto).getOrders())
                 .as("У юзера добавился один заказ")
                 .containsExactlyInAnyOrder(expectedOrder);
+    }
+    @AfterEach
+    void tearDown() {
+        DbTestDataHelper.deleteUser(userDto);
     }
 }

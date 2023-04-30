@@ -4,15 +4,14 @@ import com.github.javafaker.Faker;
 import io.restassured.http.Header;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import pro.learnup.api.dto.UserDto;
 import pro.learnup.api.endpoints.ApiAuthRegisterEndpoint;
 import pro.learnup.api.endpoints.ApiUserEndpoint;
 import pro.learnup.api.ext.ApiTestExtension;
+import pro.learnup.testdata.DbTestDataHelper;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static io.restassured.RestAssured.given;

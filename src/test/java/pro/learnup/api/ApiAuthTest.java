@@ -6,6 +6,7 @@ import io.restassured.http.Header;
 import org.assertj.core.api.SoftAssertions;
 import org.hamcrest.Matchers;
 import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.junit.runners.MethodSorters;
 import pro.learnup.api.dto.UserDto;
 import pro.learnup.api.endpoints.ApiAuthRegisterEndpoint;
 import pro.learnup.api.ext.ApiTestExtension;
+import pro.learnup.testdata.DbTestDataHelper;
 
 import java.util.stream.Stream;
 
@@ -28,6 +30,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class ApiAuthTest {
 
     static Faker faker = new Faker();
+    UserDto userDto;
     public static Stream<UserDto> successfulCreateUserRequests() {
 
         return Stream.of(UserDto.builder()
@@ -48,6 +51,7 @@ public class ApiAuthTest {
     @DisplayName("/api/auth/register: 201: успешное создание юзера")
     @MethodSource("successfulCreateUserRequests")
     void createUserTest(UserDto userDto) {
+        this.userDto = userDto;
 
         UserDto actualUser = new ApiAuthRegisterEndpoint().registerNewUser(userDto);
 
@@ -57,7 +61,7 @@ public class ApiAuthTest {
                         .usingRecursiveComparison()
                         .ignoringFields("id", "orders", "password", "token")
                         .isEqualTo(userDto);
-        softAssertions.assertThat(actualUser.getId()).isNotEmpty();
+        softAssertions.assertThat(actualUser.getId().toString()).isNotEmpty();
         softAssertions.assertThat(actualUser.getPassword()).isNotEmpty();
         softAssertions.assertThat(actualUser.getToken()).isNotEmpty();
         softAssertions.assertThat(actualUser.getToken()).isEmpty();
@@ -89,8 +93,7 @@ public class ApiAuthTest {
     @Test
     @DisplayName("/api/auth/register: 409: создание существующего пользователя")
     void failedCreateUser409Test() {
-        UserDto userDto = successfulCreateUserRequests().findFirst().orElseThrow();
-        new ApiAuthRegisterEndpoint().registerNewUser(userDto);
+        userDto = new ApiAuthRegisterEndpoint().registerNewUser(successfulCreateUserRequests().findFirst().orElseThrow());
 
         given()
                 .body(userDto)
@@ -125,5 +128,10 @@ public class ApiAuthTest {
                 .post("/api/auth/login")
                 .then()
                 .statusCode(401);
+    }
+
+    @AfterEach
+    void tearDown() {
+        DbTestDataHelper.deleteUser(userDto);
     }
 }
