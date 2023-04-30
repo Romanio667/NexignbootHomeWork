@@ -41,9 +41,4 @@ public class UserDto{
 
 	@JsonProperty("token")
 	private String token;
-
-
-	public Header authHeader() {
-		return new Header("Authorization", "Bearer " + this.getToken());
-	}
 }

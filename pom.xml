@@ -139,6 +139,11 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.12.13</version>
         </dependency>
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner</artifactId>
+            <version>1.0.12</version>
+        </dependency>
 
     </dependencies>
 
